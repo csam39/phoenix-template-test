@@ -9,6 +9,12 @@
   "shutdownAction": "none",
   "remoteUser": "root",
   "forwardPorts": [4000, 5432],
-"postCreateCommand": "bash -lc '[ -f mix.exs ] || (mix archive.install hex phx_new --force && mix phx.new . --database postgres --live --tailwind --no-install && mix deps.get && mix assets.setup)'"
+   // Mount the host repo read-only at /seed so we can copy it into the empty /app volume
+   "mounts": [
+    "source=${localWorkspaceFolder},target=/seed,type=bind,consistency=cached,readonly"
+  ],
+
+  // On first open (when /app is empty), seed /app from /seed; then set up deps/assets
+  "postCreateCommand": "bash -lc 'if [ ! -f /app/mix.exs ]; then echo \"Seeding /app from /seed …\"; (cd /seed && tar cf - . --exclude=.git --exclude=_build --exclude=deps --exclude=priv/static/assets) | (cd /app && tar xf -); fi; mix deps.get && mix assets.setup'"
 }
 
