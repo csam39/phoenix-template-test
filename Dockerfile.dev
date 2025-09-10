@@ -1,0 +1,18 @@
+FROM elixir:1.17
+
+
+# OS deps for compilation + file watching
+RUN apt-get update && apt-get install -y \
+    build-essential inotify-tools git curl \
+ && rm -rf /var/lib/apt/lists/*
+# Elixir tooling
+RUN mix local.hex --force && mix local.rebar --force
+# OPTIONAL: Uncomment if you plan to use Node-based Tailwind plugins or npm packages
+# RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+#  && apt-get install -y nodejs \
+#  && npm i -g npm@latest
+WORKDIR /app
+ENV MIX_ENV=dev
+# keep container alive (we'll run mix commands manually)
+CMD ["bash", "-lc", "sleep infinity"]
+

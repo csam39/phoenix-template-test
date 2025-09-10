@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${PGUSER:-postgres}
+      POSTGRES_PASSWORD: ${PGPASSWORD:-postgres}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    env_file:
+      - .env.dev
+    volumes:
+      - code_data:/app
+      - mix_data:/root/.mix
+      - build_data:/app/_build
+      - deps_data:/app/deps
+    ports:
+      - "4000:4000" 
+      # If you later enable Node/npm in Dockerfile.dev, you can also add:
+      # - node_data:/app/assets/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:
+  code_data:
+  mix_data:
+  build_data:
+  deps_data:
+  # node_data:

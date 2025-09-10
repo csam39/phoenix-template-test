@@ -1,0 +1,14 @@
+{
+  "name": "Phoenix + LiveView (Dockerized)",
+  "dockerComposeFile": [
+    "../docker-compose.yml"
+  ],
+  "service": "web",
+  "workspaceFolder": "/app",
+  "runServices": ["db", "web"],
+  "shutdownAction": "none",
+  "remoteUser": "root",
+  "forwardPorts": [4000, 5432],
+"postCreateCommand": "bash -lc '[ -f mix.exs ] || (mix archive.install hex phx_new --force && mix phx.new . --database postgres --live --tailwind --no-install && mix deps.get && mix assets.setup)'"
+}
+
